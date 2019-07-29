@@ -1,7 +1,7 @@
 export interface IGame {
     begin(playerAnswer: string, predictor?: boolean): boolean;
     decide(playerAnswer: string, predictorAnswer: string): boolean;
-    getRandomAnswer(predictor: boolean): string;
+    getRandomAnswerForPredictor(predictor: boolean): string;
     getRandomHands(): string;
-    getRandomPrediction(): number;
+    getRandomNumber(min?: number, max?: number): number;
 }

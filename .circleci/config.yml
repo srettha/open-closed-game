@@ -1,0 +1,41 @@
+version: 2
+references:
+  default_workspace: &default_workspace
+    docker:
+      - image: circleci/node:12.6.0
+  yarn_restore_cache: &yarn_restore_cache
+    restore_cache:
+      keys:
+        - node-modules-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
+        - node-modules-v1-{{ .Branch }}-
+        - node-modules-v1-
+  yarn: &yarn
+    run: yarn --frozen-lockfile
+  yarn_save_cache: &yarn_save_cache
+    save_cache:
+      key: node-modules-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
+      paths:
+        - node_modules
+jobs:
+  run_linters:
+    <<: *default_workspace
+    steps:
+      - checkout
+      - *yarn_restore_cache
+      - *yarn
+      - *yarn_save_cache
+      - run: yarn lint
+  run_unit_tests:
+    <<: *default_workspace
+    steps:
+      - checkout
+      - *yarn_restore_cache
+      - *yarn
+      - *yarn_save_cache
+      - run: yarn ci:test
+workflows:
+  version: 2
+  linters_and_tests:
+    jobs:
+      - run_linters
+      - run_unit_tests

@@ -1,8 +1,9 @@
 module.exports = {
     rootDir: './',
     coveragePathIgnorePatterns: [
-        '/node_modules/',
-        '/tests/',
+        'node_modules/',
+        'src/tests/',
+        'src/typings/'
     ],
     moduleFileExtensions: [
         'ts',
