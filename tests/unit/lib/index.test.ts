@@ -18,7 +18,7 @@ describe('Game', () => {
     describe('begin()', () => {
         it('should use given answer from player (lose)', () => {
             const expected = false;
-            game.getRandomAnswer = jest.fn().mockReturnValueOnce('CC1');
+            game.getRandomAnswerForPredictor = jest.fn().mockReturnValueOnce('CC1');
 
             const actual = game.begin('CC', false);
             expect(actual).toEqual(expected);
@@ -26,7 +26,7 @@ describe('Game', () => {
 
         it('should use given answer from player (win)', () => {
             const expected = true;
-            game.getRandomAnswer = jest.fn().mockReturnValueOnce('OO2');
+            game.getRandomAnswerForPredictor = jest.fn().mockReturnValueOnce('OO2');
 
             const actual = game.begin('CC', false);
             expect(actual).toEqual(expected);
@@ -34,7 +34,7 @@ describe('Game', () => {
 
         it('should use given answers from predictor (lose)', () => {
             const expected = false;
-            game.getRandomAnswer = jest.fn().mockReturnValueOnce('CC');
+            game.getRandomAnswerForPredictor = jest.fn().mockReturnValueOnce('CC');
 
             const actual = game.begin('CC2');
             expect(actual).toEqual(expected);
@@ -42,7 +42,7 @@ describe('Game', () => {
 
         it('should use given answers from predictor (win)', () => {
             const expected = true;
-            game.getRandomAnswer = jest.fn().mockReturnValueOnce('OO');
+            game.getRandomAnswerForPredictor = jest.fn().mockReturnValueOnce('OO');
 
             const actual = game.begin('CC2');
             expect(actual).toEqual(expected);
@@ -50,14 +50,14 @@ describe('Game', () => {
     });
 
     describe('decide()', () => {
-        it('should return message saying that You WIN!!', () => {
+        it('should return status saying that someone win (true)', () => {
             const expected = true;
 
             const actual = game.decide('CO', 'CO2');
             expect(actual).toEqual(expected);
         });
 
-        it('should return message saying that No winner.', () => {
+        it('should return status saying that noone win (false)', () => {
             const expected = false;
 
             const actual = game.decide('CO', 'CO1');
@@ -65,20 +65,42 @@ describe('Game', () => {
         });
     });
 
-    describe('getRandomAnswer()', () => {
-        it('should return answer with prediction if predictor is true', () => {
-            const actual = game.getRandomAnswer(true);
-            const [left, right, prediction] = actual.split('');
-            expect(expectedChoices).toContain(left);
-            expect(expectedChoices).toContain(right);
-            expect(expectedPrediction).toContain(parseInt(prediction, 10));
-        });
-
-        it('should return answer with no prediction if predictor is false', () => {
-            const actual = game.getRandomAnswer(false);
+    describe('getRandomAnswerForPredictor()', () => {
+        it('should return answer with no prediction', () => {
+            const actual = game.getRandomAnswerForPredictor(true);
             const [left, right] = actual.split('');
             expect(expectedChoices).toContain(left);
             expect(expectedChoices).toContain(right);
+        });
+
+        it('should return answer with prediction that is not more than 2', () => {
+            game.getRandomHands = jest.fn().mockReturnValueOnce('CC');
+
+            const actual = game.getRandomAnswerForPredictor(false);
+            const [left, right, prediction] = actual.split('');
+            expect('C').toContain(left);
+            expect('C').toContain(right);
+            expect([1, 2]).toContain(parseInt(prediction, 10));
+        });
+
+        it('should return answer with prediction that is not more than 3', () => {
+            game.getRandomHands = jest.fn().mockReturnValueOnce('OC');
+
+            const actual = game.getRandomAnswerForPredictor(false);
+            const [left, right, prediction] = actual.split('');
+            expect('O').toContain(left);
+            expect('C').toContain(right);
+            expect([1, 2, 3]).toContain(parseInt(prediction, 10));
+        });
+
+        it('should return answer with prediction that is not more than 4', () => {
+            game.getRandomHands = jest.fn().mockReturnValueOnce('OO');
+
+            const actual = game.getRandomAnswerForPredictor(false);
+            const [left, right, prediction] = actual.split('');
+            expect('O').toContain(left);
+            expect('O').toContain(right);
+            expect(expectedPrediction).toContain(parseInt(prediction, 10));
         });
     });
 
@@ -92,9 +114,30 @@ describe('Game', () => {
     });
 
     describe('getRandomPrediction()', () => {
-        it('should return random open hands in corret range', () => {
-            const actual = game.getRandomPrediction();
+        it('should return random open hands in corret range with default value (1 - 4)', () => {
+            const actual = game.getRandomNumber();
             expect(expectedPrediction).toContain(actual);
         });
-    })
+
+        it('should return random open hands in range of 0 - 1', () => {
+            const expected = [0, 1];
+
+            const actual = game.getRandomNumber(0, 1);
+            expect(expected).toContain(actual);
+        });
+
+        it('should return random open hands in range of 1 - 2', () => {
+            const expected = [1, 2];
+
+            const actual = game.getRandomNumber(1, 2);
+            expect(expected).toContain(actual);
+        });
+
+        it('should return random open hands in range of 1 - 3', () => {
+            const expected = [1, 2, 3];
+
+            const actual = game.getRandomNumber(1, 3);
+            expect(expected).toContain(actual);
+        });
+    });
 });
