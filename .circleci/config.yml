@@ -32,7 +32,7 @@ jobs:
       - *yarn_restore_cache
       - *yarn
       - *yarn_save_cache
-      - run: yarn test
+      - run: yarn ci:test
 workflows:
   version: 2
   linters_and_tests:
